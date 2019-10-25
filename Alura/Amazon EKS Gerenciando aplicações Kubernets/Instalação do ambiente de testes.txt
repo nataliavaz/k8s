@@ -1,0 +1,41 @@
+Instalação KUBECTL
+==================
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+
+chmod +x ./kubectl
+
+sudo mv ./kubectl /usr/local/bin/
+
+
+Instalação DOCKER
+=================
+sudo apt-get update
+
+sudo apt-get install docker.io -y
+
+
+Instalação MINIKUBE
+===================
+https://kubernetes.io/docs/tasks/tools/install-minikube/
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64  && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
+
+(EXECUTAR COMO ROOT) minikube start --vm-driver=none
+
+
+Acertando as permissões para o Usuário
+======================================
+sudo mv /root/.kube $HOME/.kube && sudo chown -R $USER $HOME/.kube && sudo chgrp -R $USER $HOME/.kube && sudo mv /root/.minikube $HOME/.minikube && sudo chown -R $USER $HOME/.minikube && sudo chgrp -R $USER $HOME/.minikube
+
+home/ubuntu: vim .kube/config
+
+alterar o caminho dos certificados para o home
+
+--Executando aplicação
+$ kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+$ kubectl expose deployment hello-minikube --type=NodePort
+ kubectl get pods
+ kubectl get services
+
+
+
+
