@@ -1,0 +1,79 @@
+- criar role para o EKS (somente selecionar o serviço e nomear a role)
+
+-  criar cluster
+aws eks create-cluster --name producao --role-arn arn:aws:iam::585140320415:role/Role_EKS --resources-vpc-config subnetIds=subnet-0e7f77548521b1fc9,subnet-0c6ebb99e3fe7274d,subnet-050bafd2b5f0d7f5b,securityGroupIds=sg-093a43a31d983050b
+
+- listar clusters
+aws eks list-clusters
+
+- describe
+ aws eks describe-cluster --name producao
+
+--autenticacao do k8s na aws 
+choco install -y aws-iam-authenticator
+
+-- cria configuarcao de autenticaçao pro k8s
+aws eks update-kubeconfig --name producao
+Added new context arn:aws:eks:us-east-1:585140320415:cluster/producao to C:\Users\natalia.vaz\.kube\config
+
+--instancia eks
+ami-0392bafc801b7520f
+
+
+--- config autenticacao
+https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2018-08-30/aws-auth-cm.yaml
+
+---- 
+nodes criados no cloudformation
+
+adicionar nodes ao cluster
+https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2018-08-30/aws-auth-cm.yaml
+
+alterar o role arn pela role gerada no cloudformation
+
+
+-- para escalonar os nodes alterar no auto scaling group
+escalar pods
+kubectl.exe  scale deploy frontend --replicas=5
+
+=== Dashboard
+https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/#deploying-the-dashboard-ui
+
+- Fazer o deploy do dashboard
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+(usar ultima versao)
+
+
+https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+- criar usuario admin 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+
+e role admin
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+
+== obter token
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+--iniciar o proxy (o acesso só sera permitido na máquina que iniciar o serviço
+
+kubectl proxy
+
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+
